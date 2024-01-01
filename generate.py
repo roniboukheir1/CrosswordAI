@@ -158,11 +158,11 @@ class CrosswordCreator():
         for var in self.crossword.variables:
             if var not in assignment:
                 return False
-            if assignment[var] not in self.domains[var]:
+            if not assignment[var]:
                 return False
-        
+            if len(assignment[var]) != 1:
+                return False
         return True
-
 
     def consistent(self, assignment):
 
@@ -190,8 +190,27 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
+        #least constraining values
 
-
+        countOut = dict()
+        
+        for var in self.domains[var]:
+            countOut[var] = 0
+            for neighbor in self.crossword.neighbors(var):
+                if neighbor in assignment:
+                    continue
+                
+                overlap = (self.crossword.overlaps[var, neighbor])
+                if overlap:
+                    
+                    wordI = var.cells.index(overlap)
+                    wordJ = neighbor.cells.index(overlap)
+                    
+                    for word in self.domains[neighbor]:
+                        if var[wordI] != word[wordJ]:
+                            countOut[var] += 1
+        return sorted(countOut, key = lambda x:countOut[x])
+                
     def select_unassigned_variable(self, assignment):
         """
         Return an unassigned variable not already part of `assignment`.
