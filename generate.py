@@ -144,11 +144,7 @@ class CrosswordCreator():
         
         for var in self.crossword.variables:
             if var not in assignment:
-                print(assignment)
                 return False
-            # if len(assignment[var]) != var.length:
-            #     return False
-        print(assignment)
         return True
 
     def consistent(self, assignment):
@@ -194,7 +190,6 @@ class CrosswordCreator():
 
                         if word[i] != neighborWord[j]:
                             countOut[word] += 1
-                        # if word == neighborWord
                         
         return sorted(countOut, key = lambda x:countOut[x])
                 
@@ -235,8 +230,6 @@ class CrosswordCreator():
                 if result:
                     return result
                 assignment.pop(var)
-            else:
-                print(f"assignment {assignmentCopy} is not consistent")
         return None
 
 def main():
