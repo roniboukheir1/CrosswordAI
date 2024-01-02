@@ -41,7 +41,7 @@ class Crossword():
                     
                     if word_start:
                         length = 1
-                        for k in range(i+1,self.heigth):
+                        for k in range(i+1,self.height):
                             if self.structure[k][j]:
                                 length += 1
                             else:
@@ -79,14 +79,13 @@ class Crossword():
                 
                 cells1 = v1.cells
                 cells2 = v2.cells
+                # print("cells1 : ",cells1)
+                # print("cells2 : ",cells2)
                 
-                intersection = set(cells1).intersection(cells2)
-                
-                cells1 = v1.cells
-                cells2 = v2.cells
-                intersection = set(cells1).intersection(cells2)
+                intersection = set(cells1).intersection(set(cells2))
                 if intersection:
-                    
+                    intersection = intersection.pop()
+                    # print("intersection : ",intersection)
                     self.overlaps[v1,v2] = (
                         cells1.index(intersection),
                         cells2.index(intersection)
@@ -95,17 +94,14 @@ class Crossword():
                     self.overlaps[v1,v2] = None
                      
     def neighbors(self, var):
-        
+        """Given a variable, return set of overlapping variables."""
         return set(
-            
             v for v in self.variables
-            if v != var and self.overlaps[v,var]
+            if v != var and (self.overlaps[v, var])
         )
-                    
-        
-        
 
 class Variable():
+    
     
     ACROSS = "across"
     DOWN = "down"
@@ -119,16 +115,17 @@ class Variable():
         self.cells = []
         
         for k in range(self.length):
-            self.cells.append(
+            self.cells.append((
                 self.i + (k if self.direction == Variable.DOWN else 0),
                 self.j + (k if self.direction == Variable.ACROSS else 0)
-            )
+            ))
         
     def __hash__(self):
-        return hash(self.i, self.j, self.direction, self.length)
+        return hash((self.i, self.j, self.direction, self.length))
     
     def __eq__(self, other):
         return (
+            isinstance(other, Variable) and
             (self.i == other.i) and
             (self.j == other.j) and 
             (self.direction == other.direction) and
