@@ -122,6 +122,9 @@ class Variable():
         
     def __hash__(self):
         return hash((self.i, self.j, self.direction, self.length))
+
+    def __str__(self):
+        return f"({self.i}, {self.j}) {self.direction} : {self.length}"
     
     def __eq__(self, other):
         return (

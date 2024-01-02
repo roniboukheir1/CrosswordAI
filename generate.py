@@ -38,51 +38,52 @@ class CrosswordCreator():
             for j in range(self.crossword.width):
 
                 if self.crossword.structure[i][j]:
-                    print(letters[i][j] or " ", end = " ")
+                    print(letters[i][j] or " ", end = "")
                 else:
                     print("█", end = "")
             print()
     
     def save(self, assignment, filename):
-
+        """
+        Save crossword assignment to an image file.
+        """
         from PIL import Image, ImageDraw, ImageFont
         cell_size = 100
         cell_border = 2
         interior_size = cell_size - 2 * cell_border
         letters = self.letter_grid(assignment)
 
-        #create a blank canvas
+        # Create a blank canvas
         img = Image.new(
             "RGBA",
-            (self.corssword.width * cell_size,
+            (self.crossword.width * cell_size,
              self.crossword.height * cell_size),
-             "black"
+            "black"
         )
-
-        font = ImageFont.truetype("assets/fonts/OpenSans-Regular.ttf",80)
+        font = ImageFont.truetype("assets/fonts/OpenSans-Regular.ttf", 80)
         draw = ImageDraw.Draw(img)
 
         for i in range(self.crossword.height):
-
             for j in range(self.crossword.width):
 
                 rect = [
                     (j * cell_size + cell_border,
                      i * cell_size + cell_border),
-                     ((i + 1) * cell_size - cell_border,
-                      (i + 1) * cell_size - cell_border)
+                    ((j + 1) * cell_size - cell_border,
+                     (i + 1) * cell_size - cell_border)
                 ]
-
                 if self.crossword.structure[i][j]:
-                    draw.rectangle(rect, fill = "white")
+                    draw.rectangle(rect, fill="white")
                     if letters[i][j]:
-                        _,_,w,h = draw.textbbox((0,0),letters[i][j], font = font)
-                        draw.text (
-                            (rect[0][0] + (interior_size - w) / 2,
-                            rect[0][1] + ((interior_size - h) / 2) - 10),
-                            letters[i][j], fill = "black", font = font
+                        _, _, w, h = draw.textbbox((0, 0), letters[i][j], font=font)
+                        draw.text(
+                            (rect[0][0] + ((interior_size - w) / 2),
+                             rect[0][1] + ((interior_size - h) / 2) - 10),
+                            letters[i][j], fill="black", font=font
                         )
+
         img.save(filename)
+
 
     def solve(self):
 
@@ -106,15 +107,15 @@ class CrosswordCreator():
             overlap = self.crossword.overlaps[x,y]
             if overlap:
                 a,b = overlap
-                yDomain = self.domains[y].copy()
+                exists = False
                 for j in self.domains[y].copy():
-                    if i[a] != j[b]:
-                        yDomain.remove(j)
-                    if i == j:
-                        yDomain.remove(j)
-                if len(yDomain) == 0:
+                    
+                    if i[a] == j[b]:
+                        exists = True
+                if not exists:
                     self.domains[x].remove(i)
                     revised = True
+
         return revised
                         
     def ac3(self, arcs=None):
@@ -145,32 +146,34 @@ class CrosswordCreator():
         
         for var in self.crossword.variables:
             if var not in assignment:
+                print(assignment)
                 return False
-            if len(assignment[var]) != var.length:
-                return False
+            # if len(assignment[var]) != var.length:
+            #     return False
+        print(assignment)
         return True
 
     def consistent(self, assignment):
         
-        
+        if len(set(assignment.values())) < len(assignment):
+            print("Duplicate words found in the assignment.")
+            return False
         for var in assignment:
-            
-            if len(set(assignment[var])) != var.length: return False
-            
+            if len(assignment[var]) != var.length:
+                print("Length of word does not match the variable's length requirement.")
+                return False
+
             for neighbor in self.crossword.neighbors(var):
-                
-                if neighbor not in assignment: continue
-                
+                if neighbor not in assignment:
+                    continue
+
                 overlap = self.crossword.overlaps[var, neighbor]
-                
                 if overlap:
-                    
-                    i,j = overlap
-                    
+                    i, j = overlap
                     if assignment[var][i] != assignment[neighbor][j]:
                         return False
-        
         return True
+
 
     def order_domain_values(self, var, assignment):
 
@@ -193,8 +196,7 @@ class CrosswordCreator():
 
                         if word[i] != neighborWord[j]:
                             countOut[word] += 1
-                        if word == neighborWord:
-                            countOut[word] += 1
+                        # if word == neighborWord
                         
         return sorted(countOut, key = lambda x:countOut[x])
                 
@@ -235,6 +237,8 @@ class CrosswordCreator():
                 if result:
                     return result
                 assignment.pop(var)
+            else:
+                print(f"assignment {assignmentCopy} is not consistent")
         return None
 
 def main():
@@ -246,7 +250,7 @@ def main():
     # Parse command-line arguments
     structure = sys.argv[1]
     words = sys.argv[2]
-    output = sys.argv[3] if len(sys.argv) == 4 else None
+    # output = sys.argv[3] if len(sys.argv) == 4 else None
 
     # Generate crossword
     crossword = Crossword(structure, words)
@@ -258,8 +262,8 @@ def main():
         print("No solution.")
     else:
         creator.print(assignment)
-        if output:
-            creator.save(assignment, output)
+        # if output:
+        #     creator.save(assignment, output)
 
 
 if __name__ == "__main__":
