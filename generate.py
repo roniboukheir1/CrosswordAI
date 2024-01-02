@@ -44,9 +44,7 @@ class CrosswordCreator():
             print()
     
     def save(self, assignment, filename):
-        """
-        Save crossword assignment to an image file.
-        """
+
         from PIL import Image, ImageDraw, ImageFont
         cell_size = 100
         cell_border = 2
@@ -250,7 +248,7 @@ def main():
     # Parse command-line arguments
     structure = sys.argv[1]
     words = sys.argv[2]
-    # output = sys.argv[3] if len(sys.argv) == 4 else None
+    output = sys.argv[3] if len(sys.argv) == 4 else None
 
     # Generate crossword
     crossword = Crossword(structure, words)
@@ -262,8 +260,8 @@ def main():
         print("No solution.")
     else:
         creator.print(assignment)
-        # if output:
-        #     creator.save(assignment, output)
+        if output:
+            creator.save(assignment, output)
 
 
 if __name__ == "__main__":
